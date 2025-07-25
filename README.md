@@ -32,7 +32,7 @@ A full-stack Bitcoin OP_RETURN transaction explorer that indexes and analyzes em
 
 - Node.js (v18 or higher)
 - pnpm (recommended) or npm
-- MySQL database (already configured)
+- MySQL database server
 
 ## 🔧 Installation & Setup
 
@@ -51,7 +51,7 @@ chmod +x start.sh
 ```bash
 # Install backend dependencies
 cd backend
-npm install
+pnpm install
 
 # Install frontend dependencies  
 cd ../frontend
@@ -60,30 +60,37 @@ pnpm install
 
 ### 3. Database Setup
 
-The database is already configured with the following credentials:
-- **Host**: 34.68.237.66
-- **Port**: 3306
-- **User**: admin
-- **Database**: opreturn_explorer
+Configure your MySQL database server and create the database:
 
-Optional: Initialize with sample data by running the SQL script:
 ```bash
-mysql -h 34.68.237.66 -u admin -p'db@321' < init-db.sql
+# Create the database
+mysql -u [your_username] -p -e "CREATE DATABASE operturn_explorer;"
+
+# Initialize the schema and sample data
+mysql -u [your_username] -p < create-tables.sql
 ```
 
 ### 4. Environment Configuration
 
-The environment files are already configured:
+Copy the example environment files and configure with your credentials:
 
-**Backend (.env)**:
+```bash
+# Backend environment
+cp backend/.env.example backend/.env
+
+# Frontend environment  
+cp frontend/.env.local.example frontend/.env.local
+```
+
+**Backend (.env)** - Update with your database credentials:
 ```env
-DB_HOST=34.68.237.66
+DB_HOST=your_mysql_host
 DB_PORT=3306
-DB_USER=admin
-DB_PASSWORD=db@321
-DB_NAME=opreturn_explorer
+DB_USER=your_mysql_username
+DB_PASSWORD=your_mysql_password
+DB_NAME=operturn_explorer
 ESPLORA_BASE_URL=https://blockstream.info/api
-INITIAL_BLOCK_HEIGHT=400000
+INITIAL_BLOCK_HEIGHT=905000
 SYNC_INTERVAL_MINUTES=10
 PORT=3001
 ```
@@ -104,7 +111,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 ```bash
 # Terminal 1 - Backend
 cd backend
-npm run dev
+pnpm run dev
 
 # Terminal 2 - Frontend  
 cd frontend
@@ -198,7 +205,7 @@ bitcoin-bomber/
 │   │   └── types/        # TypeScript definitions
 │   ├── .env.local        # Frontend environment
 │   └── package.json
-├── init-db.sql           # Database schema
+├── create-tables.sql     # Database schema
 ├── start.sh              # Startup script
 └── README.md
 ```
@@ -206,7 +213,7 @@ bitcoin-bomber/
 ## 🐛 Troubleshooting
 
 ### Backend Issues
-- **Database Connection**: Ensure MySQL server is accessible
+- **Database Connection**: Ensure MySQL server is accessible and credentials are correct
 - **API Rate Limiting**: Blockstream API has rate limits; sync may be slow
 - **Memory Usage**: Large block processing can use significant memory
 
@@ -220,7 +227,7 @@ bitcoin-bomber/
 # Clear all caches and reinstall
 rm -rf backend/node_modules frontend/node_modules
 rm -rf frontend/.next
-cd backend && npm install && cd ../frontend && pnpm install
+cd backend && pnpm install && cd ../frontend && pnpm install
 
 # Restart with fresh cache
 ./start.sh
